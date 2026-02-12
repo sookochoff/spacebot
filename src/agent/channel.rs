@@ -330,6 +330,9 @@ impl Channel {
             }
         }
 
+        // Ensure typing indicator is always cleaned up, even on error paths
+        let _ = self.response_tx.send(OutboundResponse::Status(crate::StatusUpdate::StopTyping)).await;
+
         // Check context size and trigger compaction if needed
         if let Err(error) = self.compactor.check_and_compact().await {
             tracing::warn!(channel_id = %self.id, %error, "compaction check failed");
